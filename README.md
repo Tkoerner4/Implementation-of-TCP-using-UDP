@@ -65,3 +65,18 @@ Timeout: The sender uses a 500ms timeout for the oldest unacknowledged packet.
 
 Receiver ACKs: The receiver acknowledges every packet, sending ACKs for the last correctly received in-order packet. No cumulative or delayed ACKs.
 
+# Receiver Events
+When a packet comes in order with the correct sequence number, an ACK for that packet is sent to the sender program
+
+If an out of order or corrupt packet arrives, a duplicate ACK for the last correctly in order packet is sent
+
+# Sender Events
+
+When data is first specified to be sent, a packet is created with the data, assgined a sequence number, and a checksum.
+If there is room in the sliding window, the packet is sent. However, if the window does not have space for a new packet, the it is buffered until there is room
+
+If an ACK is received for the lowest seqnum unACK'd packet in the window, the window advances, and the timeout timer starts
+
+If triple duplicate ACKs are received, the oldest unACKed packet is retransmitted, and the timeout timer starts
+
+If a corrupt ACK packet is recieved, it is ignored
