@@ -2,12 +2,20 @@
 
 This repository contains an implementation of TCP using UDP. It ensures reliable file transfer between two machines by handling packet loss and corruption. There is a sender and receiver program, where the sender transmits a file over UDP, and the receiver verifies its integrity upon completion
 
+# Files
+
+Sender.py contains the sender program
+unreliable_channel.py contains methods for simulating dropping or corruption of packets, can edit probability of drops/corruption in file
+
+
 # Usage
 To compile and run this program, you need to be in the same directory as Receiver.py, Sender.py, and unreliable_channel.py
 using the commands: 
 python Receiver.py 12345 received_file.txt receiver_log.txt
 and
 python Sender.py localhost 12345 50 1MB.txt sender_log.txt
+
+"50" is the size of the window to use for the sliding window mechanism
 
 1MB is just a sample of data to send over the connection, you can send any .txt file
 
@@ -44,4 +52,16 @@ the sender and receiver.
 - The receive thread on the sender receives the ACK packets.
 
 # Reliable delivery policy
+This project follows these protocols in order to ensure reliable delivery
+
+Sequence Number: Each packet includes a sequence number. The sender reads the input file, splits it into chunks, and assigns a sequence number 
+starting from 0. Unlike TCP, sequence numbers are per packet, not byte stream.
+
+Checksum: The sender calculates a 32-bit CRC32 checksum for the packet's type, seqNum, length, and data fields to verify integrity.
+
+Sliding Window: Uses a sliding window mechanism with size specified via command line, independent of receiver buffer size (no flow control). Stop-and-wait implementations get no points.
+
+Timeout: The sender uses a 500ms timeout for the oldest unacknowledged packet.
+
+Receiver ACKs: The receiver acknowledges every packet, sending ACKs for the last correctly received in-order packet. No cumulative or delayed ACKs.
 
